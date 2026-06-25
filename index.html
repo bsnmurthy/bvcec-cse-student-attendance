@@ -146,18 +146,17 @@
         <input type="text" id="section" placeholder="e.g. A">
       </div>
       <div>
-        <label>Subject</label>
-        <input type="text" id="subject" placeholder="e.g. DBMS">
-      </div>
-      <div>
-        <label>Hour</label>
-        <input type="text" id="hour" placeholder="e.g. 1">
-      </div>
-      <div>
-        <label>Faculty Name</label>
-        <input type="text" id="faculty" placeholder="e.g. Murthy">
-      </div>
-    </div>
+  <label>Program Name</label>
+  <input type="text" id="programName" placeholder="e.g. AI Workshop">
+</div>
+<div>
+  <label>Program Date</label>
+  <input type="date" id="programDate">
+</div>
+<div>
+  <label>Resource Person Name</label>
+  <input type="text" id="resourcePerson" placeholder="e.g. Dr. Murthy">
+</div>
 
     <div>
       <button class="btn-primary" onclick="startSession()">Start Session</button>
@@ -225,25 +224,25 @@
     }
 
     function getSessionForm() {
-      return {
-        branch: cleanText(document.getElementById("branch").value),
-        year: cleanText(document.getElementById("year").value),
-        section: cleanText(document.getElementById("section").value),
-        subject: cleanText(document.getElementById("subject").value),
-        hour: cleanText(document.getElementById("hour").value),
-        faculty: cleanText(document.getElementById("faculty").value)
-      };
+  return {
+    branch: cleanText(document.getElementById("branch").value),
+    year: cleanText(document.getElementById("year").value),
+    section: cleanText(document.getElementById("section").value),
+    programName: cleanText(document.getElementById("programName").value),
+    programDate: cleanText(document.getElementById("programDate").value),
+    resourcePerson: cleanText(document.getElementById("resourcePerson").value)
+  };
     }
 
     function renderSessionInfo(data) {
       const box = document.getElementById("sessionInfo");
       box.style.display = "block";
-      box.innerHTML = `
-        <div><span class="pill">Session ID: ${data.sessionId}</span></div>
-        <div class="muted">
-          ${data.branch} - ${data.year} - ${data.section} | ${data.subject} | Hour ${data.hour} | Faculty: ${data.faculty}
-        </div>
-      `;
+     box.innerHTML = `
+  <div><span class="pill">Session ID: ${data.sessionId}</span></div>
+  <div class="muted">
+    ${data.branch} - ${data.year} - ${data.section} | Program: ${data.programName} | Program Date: ${data.programDate} | Resource Person: ${data.resourcePerson}
+  </div>
+`;
     }
 
     async function apiPost(payload) {
@@ -262,10 +261,10 @@
       }
 
       const form = getSessionForm();
-      if (!form.branch || !form.year || !form.section || !form.subject || !form.hour || !form.faculty) {
-        showStatus("Please fill Branch, Year, Section, Subject, Hour and Faculty.", "error");
-        return;
-      }
+     if (!form.branch || !form.year || !form.section || !form.programName || !form.programDate || !form.resourcePerson) {
+  showStatus("Please fill Branch, Year, Section, Program Name, Program Date and Resource Person.", "error");
+  return;
+}
 
       showStatus("Starting session...", "info");
 
@@ -437,17 +436,17 @@
         const absentList = document.getElementById("absentList");
 
         summaryCard.style.display = "block";
-        summaryText.innerHTML = `
-          <div><b>Class:</b> ${result.session.branch} - ${result.session.year} - ${result.session.section}</div>
-          <div><b>Subject:</b> ${result.session.subject}</div>
-          <div><b>Hour:</b> ${result.session.hour}</div>
-          <div><b>Faculty:</b> ${result.session.faculty}</div>
-          <div style="margin-top:8px;">
-            <b>Total Students:</b> ${result.totalStudents} |
-            <b>Present:</b> ${result.presentCount} |
-            <b>Absent:</b> ${result.absentCount}
-          </div>
-        `;
+       summaryText.innerHTML = `
+  <div><b>Class:</b> ${result.session.branch} - ${result.session.year} - ${result.session.section}</div>
+  <div><b>Program Name:</b> ${result.session.programName}</div>
+  <div><b>Program Date:</b> ${result.session.programDate}</div>
+  <div><b>Resource Person:</b> ${result.session.resourcePerson}</div>
+  <div style="margin-top:8px;">
+    <b>Total Students:</b> ${result.totalStudents} |
+    <b>Present:</b> ${result.presentCount} |
+    <b>Absent:</b> ${result.absentCount}
+  </div>
+`;
 
         if (result.absentees && result.absentees.length > 0) {
           absentList.innerHTML = result.absentees
