@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Class Attendance Scanner</title>
+  <title>Secure Program Attendance Scanner</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
   <style>
@@ -15,7 +15,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
       background: #fff;
       padding: 20px;
@@ -27,6 +27,13 @@
       margin-top: 0;
       color: #1a73e8;
       text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .sub {
+      text-align: center;
+      color: #555;
+      margin-bottom: 18px;
     }
 
     .grid {
@@ -36,11 +43,18 @@
       margin-bottom: 12px;
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 850px) {
       .grid { grid-template-columns: 1fr; }
     }
 
-    input, select {
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    input {
       width: 100%;
       padding: 11px;
       border: 1px solid #ccc;
@@ -63,12 +77,23 @@
     .btn-primary { background: #1a73e8; }
     .btn-danger { background: #d93025; }
     .btn-success { background: #188038; }
+    .btn-warning { background: #f9ab00; color: #222; }
+    .btn-logout { background: #5f6368; }
+
+    .button-row {
+      margin-top: 8px;
+      margin-bottom: 12px;
+    }
 
     #reader {
       width: 100%;
       margin-top: 15px;
       display: none;
-      min-height: 300px;
+      min-height: 320px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fafafa;
     }
 
     .status {
@@ -78,6 +103,7 @@
       display: none;
       font-weight: bold;
       white-space: pre-line;
+      line-height: 1.5;
     }
 
     .success { background: #e6f4ea; color: #137333; display: block; }
@@ -88,7 +114,7 @@
     .card {
       border: 1px solid #ddd;
       border-radius: 10px;
-      padding: 12px;
+      padding: 14px;
       margin-top: 15px;
       background: #fafafa;
     }
@@ -101,19 +127,10 @@
       font-weight: bold;
     }
 
-    .list-box {
-      max-height: 260px;
-      overflow-y: auto;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 10px;
-      margin-top: 8px;
-    }
-
     .muted {
       color: #555;
       font-size: 14px;
+      line-height: 1.5;
     }
 
     .pill {
@@ -126,83 +143,216 @@
       margin-top: 6px;
       font-size: 14px;
     }
+
+    .list-box {
+      max-height: 280px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    .scan-preview {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #ddd;
+      word-break: break-word;
+    }
+
+    .confirm-box {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px dashed #f9ab00;
+      background: #fffdf5;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .absent-item {
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .absent-item:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #1a73e8;
+    }
+
+    .small-note {
+      font-size: 13px;
+      color: #666;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .login-box {
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Class Attendance Scanner</h1>
+    <h1>Secure Program Attendance Scanner</h1>
+    <div class="sub">Faculty login required before attendance scanning</div>
 
-    <div class="grid">
-      <div>
-        <label>Branch</label>
-        <input type="text" id="branch" placeholder="e.g. CSE">
-      </div>
-      <div>
-        <label>Year</label>
-        <input type="text" id="year" placeholder="e.g. 2">
-      </div>
-      <div>
-        <label>Section</label>
-        <input type="text" id="section" placeholder="e.g. A">
-      </div>
-      <div>
-  <label>Program Name</label>
-  <input type="text" id="programName" placeholder="e.g. AI Workshop">
-</div>
-<div>
-  <label>Program Date</label>
-  <input type="date" id="programDate">
-</div>
-<div>
-  <label>Resource Person Name</label>
-  <input type="text" id="resourcePerson" placeholder="e.g. Dr. Murthy">
-</div>
+    <!-- LOGIN SECTION -->
+    <div id="loginSection" class="login-box">
+      <div class="card">
+        <h3 class="section-title">Faculty Login</h3>
 
-    <div>
-      <button class="btn-primary" onclick="startSession()">Start Session</button>
-      <button class="btn-success" onclick="startScanner()">Start Scanner</button>
-      <button class="btn-danger" onclick="stopScanner()">Stop Scanner</button>
-      <button class="btn-primary" onclick="finishSession()">Finish Attendance</button>
+        <div style="margin-bottom:12px;">
+          <label for="loginUsername">Username</label>
+          <input type="text" id="loginUsername" placeholder="Enter username">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password">
+        </div>
+
+        <button class="btn-primary" onclick="login()">Login</button>
+      </div>
     </div>
 
-    <div id="sessionInfo" class="card" style="display:none;"></div>
+    <!-- APP SECTION -->
+    <div id="appSection" class="hidden">
+      <div class="top-bar">
+        <div id="loggedInInfo"></div>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
 
-    <div id="reader"></div>
+      <!-- SESSION INPUTS -->
+      <div class="grid">
+        <div>
+          <label for="branch">Branch</label>
+          <input type="text" id="branch" placeholder="e.g. CSE / EEE / ECE">
+        </div>
+
+        <div>
+          <label for="year">Year</label>
+          <input type="text" id="year" placeholder="e.g. 1 / 2 / 3 / 4">
+        </div>
+
+        <div>
+          <label for="section">Section</label>
+          <input type="text" id="section" placeholder="e.g. A">
+        </div>
+
+        <div>
+          <label for="programName">Program Name</label>
+          <input type="text" id="programName" placeholder="e.g. AI Workshop / Guest Lecture">
+        </div>
+
+        <div>
+          <label for="programDate">Program Date</label>
+          <input type="date" id="programDate">
+        </div>
+
+        <div>
+          <label for="resourcePerson">Resource Person Name</label>
+          <input type="text" id="resourcePerson" placeholder="e.g. Dr. Murthy">
+        </div>
+      </div>
+
+      <!-- BUTTONS -->
+      <div class="button-row">
+        <button class="btn-primary" onclick="startSession()">Start Session</button>
+        <button class="btn-success" onclick="startScanner()">Start Scanner</button>
+        <button class="btn-danger" onclick="stopScanner()">Stop Scanner</button>
+        <button class="btn-warning" onclick="finishSession()">Finish Attendance</button>
+      </div>
+
+      <div id="sessionInfo" class="card" style="display:none;"></div>
+      <div id="reader"></div>
+    </div>
+
+    <!-- STATUS -->
     <div id="status" class="status"></div>
 
-    <div class="card">
+    <!-- LIVE SCAN INFO -->
+    <div id="liveCard" class="card hidden">
+      <h3 class="section-title">Live Scan Status</h3>
       <div><b>Last Scanned:</b> <span id="lastScanned">-</span></div>
+
       <div class="counts">
         <div>Present in this session: <span id="presentCount">0</span></div>
       </div>
-      <div class="muted">Protection enabled: scan twice + length 10 + spaces removed + uppercase.</div>
+
+      <div id="scanPreview" class="scan-preview">
+        <b>Current Scan Preview:</b> <span id="scanPreviewText">-</span>
+      </div>
+
+      <div id="confirmBox" class="confirm-box"></div>
+
+      <div class="small-note">
+        <b>Scanner protections enabled:</b><br>
+        1. Same barcode must be scanned <b>twice consecutively</b> before saving.<br>
+        2. Only values with <b>exactly 10 characters</b> are accepted after cleaning.<br>
+        3. Spaces are removed and lowercase letters are converted to uppercase.<br>
+        4. Duplicate attendance in the same session is blocked.<br>
+        5. Login token is required for every attendance action.
+      </div>
     </div>
 
-    <div id="summaryCard" class="card" style="display:none;">
-      <h3>Attendance Summary</h3>
+    <!-- SUMMARY -->
+    <div id="summaryCard" class="card hidden">
+      <h3 class="section-title">Program Attendance Summary</h3>
       <div id="summaryText"></div>
 
-      <h4>Absentees</h4>
+      <h4 style="margin-top:18px;">Absentees</h4>
       <div id="absentList" class="list-box"></div>
     </div>
   </div>
 
   <script>
-    // ===========================
+    // =====================================================
     // PASTE YOUR APPS SCRIPT WEB APP URL HERE
-    // ===========================
+    // =====================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbytPmEO7IZpsdd_1_pywRkQoYPXlJGj_xUe6LlHHvzucW5elLS7ECn9rpam2Vkquapv/exec";
+
+    let authToken = localStorage.getItem("attendanceAuthToken") || "";
+    let loggedInUser = localStorage.getItem("attendanceLoggedInUser") || "";
+    let loggedInRole = localStorage.getItem("attendanceLoggedInRole") || "";
 
     let sessionId = "";
     let scannerRunning = false;
     let html5QrCode = null;
     let scanLock = false;
+
     let pendingBarcode = null;
     let pendingTime = null;
     const CONFIRM_TIMEOUT_MS = 15000;
     const EXPECTED_LENGTH = 10;
+
     let presentCount = 0;
 
+    // ------------------------------
+    // Utility functions
+    // ------------------------------
     function showStatus(message, type) {
       const box = document.getElementById("status");
       box.className = "status " + type;
@@ -221,28 +371,44 @@
     function resetPendingScan() {
       pendingBarcode = null;
       pendingTime = null;
+      hideConfirmBox();
     }
 
-    function getSessionForm() {
-  return {
-    branch: cleanText(document.getElementById("branch").value),
-    year: cleanText(document.getElementById("year").value),
-    section: cleanText(document.getElementById("section").value),
-    programName: cleanText(document.getElementById("programName").value),
-    programDate: cleanText(document.getElementById("programDate").value),
-    resourcePerson: cleanText(document.getElementById("resourcePerson").value)
-  };
-    }
-
-    function renderSessionInfo(data) {
-      const box = document.getElementById("sessionInfo");
+    function showConfirmBox(html) {
+      const box = document.getElementById("confirmBox");
       box.style.display = "block";
-     box.innerHTML = `
-  <div><span class="pill">Session ID: ${data.sessionId}</span></div>
-  <div class="muted">
-    ${data.branch} - ${data.year} - ${data.section} | Program: ${data.programName} | Program Date: ${data.programDate} | Resource Person: ${data.resourcePerson}
-  </div>
-`;
+      box.innerHTML = html;
+    }
+
+    function hideConfirmBox() {
+      const box = document.getElementById("confirmBox");
+      box.style.display = "none";
+      box.innerHTML = "";
+    }
+
+    function updatePresentCount() {
+      document.getElementById("presentCount").innerText = presentCount;
+    }
+
+    function updateScanPreview(text) {
+      document.getElementById("scanPreviewText").innerText = text || "-";
+    }
+
+    function showAppUI() {
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("appSection").classList.remove("hidden");
+      document.getElementById("liveCard").classList.remove("hidden");
+
+      document.getElementById("loggedInInfo").innerHTML =
+        `<span class="pill">Logged in as: ${loggedInUser}</span>
+         <span class="pill">Role: ${loggedInRole || "Faculty"}</span>`;
+    }
+
+    function showLoginUI() {
+      document.getElementById("loginSection").classList.remove("hidden");
+      document.getElementById("appSection").classList.add("hidden");
+      document.getElementById("liveCard").classList.add("hidden");
+      document.getElementById("summaryCard").classList.add("hidden");
     }
 
     async function apiPost(payload) {
@@ -254,46 +420,165 @@
       return await res.json();
     }
 
-    async function startSession() {
+    // ------------------------------
+    // Login / logout
+    // ------------------------------
+    async function login() {
       if (!API_URL || API_URL.includes("PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE")) {
         showStatus("Please paste your Apps Script Web App URL into index.html first.", "error");
         return;
       }
 
-      const form = getSessionForm();
-     if (!form.branch || !form.year || !form.section || !form.programName || !form.programDate || !form.resourcePerson) {
-  showStatus("Please fill Branch, Year, Section, Program Name, Program Date and Resource Person.", "error");
-  return;
-}
+      const username = cleanText(document.getElementById("loginUsername").value);
+      const password = cleanText(document.getElementById("loginPassword").value);
 
-      showStatus("Starting session...", "info");
+      if (!username || !password) {
+        showStatus("Please enter username and password.", "error");
+        return;
+      }
+
+      showStatus("Logging in...", "info");
+
+      try {
+        const result = await apiPost({
+          action: "login",
+          username: username,
+          password: password
+        });
+
+        if (result.success) {
+          authToken = result.token;
+          loggedInUser = result.username;
+          loggedInRole = result.role || "Faculty";
+
+          localStorage.setItem("attendanceAuthToken", authToken);
+          localStorage.setItem("attendanceLoggedInUser", loggedInUser);
+          localStorage.setItem("attendanceLoggedInRole", loggedInRole);
+
+          showAppUI();
+          showStatus("Login successful.", "success");
+        } else {
+          showStatus(result.message || "Login failed", "error");
+        }
+      } catch (err) {
+        showStatus("Login error: " + err, "error");
+      }
+    }
+
+    async function logout() {
+      try {
+        if (authToken) {
+          await apiPost({
+            action: "logout",
+            token: authToken
+          });
+        }
+      } catch (e) {}
+
+      authToken = "";
+      loggedInUser = "";
+      loggedInRole = "";
+      sessionId = "";
+
+      localStorage.removeItem("attendanceAuthToken");
+      localStorage.removeItem("attendanceLoggedInUser");
+      localStorage.removeItem("attendanceLoggedInRole");
+
+      if (scannerRunning) {
+        await stopScanner();
+      }
+
+      showLoginUI();
+      showStatus("Logged out successfully.", "info");
+    }
+
+    // ------------------------------
+    // Read session form
+    // ------------------------------
+    function getSessionForm() {
+      return {
+        branch: cleanText(document.getElementById("branch").value),
+        year: cleanText(document.getElementById("year").value),
+        section: cleanText(document.getElementById("section").value),
+        programName: cleanText(document.getElementById("programName").value),
+        programDate: cleanText(document.getElementById("programDate").value),
+        resourcePerson: cleanText(document.getElementById("resourcePerson").value)
+      };
+    }
+
+    function renderSessionInfo(data) {
+      const box = document.getElementById("sessionInfo");
+      box.style.display = "block";
+      box.innerHTML = `
+        <div><span class="pill">Session ID: ${data.sessionId}</span></div>
+        <div class="muted" style="margin-top:8px;">
+          <b>Class:</b> ${data.branch} - ${data.year} - ${data.section}<br>
+          <b>Program:</b> ${data.programName}<br>
+          <b>Program Date:</b> ${data.programDate}<br>
+          <b>Resource Person:</b> ${data.resourcePerson}<br>
+          <b>Created By:</b> ${loggedInUser}
+        </div>
+      `;
+    }
+
+    // ------------------------------
+    // Start session
+    // ------------------------------
+    async function startSession() {
+      if (!authToken) {
+        showStatus("Please login first.", "error");
+        return;
+      }
+
+      const form = getSessionForm();
+
+      if (!form.branch || !form.year || !form.section || !form.programName || !form.programDate || !form.resourcePerson) {
+        showStatus("Please fill Branch, Year, Section, Program Name, Program Date and Resource Person.", "error");
+        return;
+      }
+
+      showStatus("Starting program session...", "info");
 
       try {
         const result = await apiPost({
           action: "startSession",
+          token: authToken,
           ...form
         });
 
         if (result.success) {
           sessionId = result.sessionId;
           presentCount = 0;
-          document.getElementById("presentCount").innerText = "0";
+          updatePresentCount();
           renderSessionInfo({ sessionId, ...form });
-          document.getElementById("summaryCard").style.display = "none";
+          document.getElementById("summaryCard").classList.add("hidden");
           showStatus(result.message + "\nSession ID: " + sessionId, "success");
+        } else if (result.authError) {
+          showStatus(result.message, "error");
+          await logout();
         } else {
           showStatus(result.message || "Failed to start session", "error");
         }
+
       } catch (err) {
-        showStatus("API error: " + err, "error");
+        showStatus("API error while starting session: " + err, "error");
       }
     }
 
+    // ------------------------------
+    // Start scanner
+    // ------------------------------
     async function startScanner() {
-      if (!sessionId) {
-        showStatus("Start a session first before scanning.", "error");
+      if (!authToken) {
+        showStatus("Please login first.", "error");
         return;
       }
+
+      if (!sessionId) {
+        showStatus("Please start a session first before scanning.", "error");
+        return;
+      }
+
       if (scannerRunning) return;
 
       document.getElementById("reader").style.display = "block";
@@ -319,6 +604,9 @@
       }
     }
 
+    // ------------------------------
+    // Stop scanner
+    // ------------------------------
     async function stopScanner() {
       if (html5QrCode && scannerRunning) {
         try {
@@ -333,50 +621,82 @@
       }
     }
 
-    function onScanFailure(err) {
-      // ignore continuous failure callbacks
+    function onScanFailure(error) {
+      // ignore repeated scan failures
     }
 
+    // ------------------------------
+    // Scan handler
+    // ------------------------------
     async function onScanSuccess(decodedText) {
       if (scanLock) return;
       scanLock = true;
 
       const scanned = normalizeRoll(decodedText);
       document.getElementById("lastScanned").innerText = scanned;
+      updateScanPreview(scanned);
 
-      // Length validation
       if (scanned.length !== EXPECTED_LENGTH) {
         resetPendingScan();
-        showStatus(`Invalid roll number length. Expected ${EXPECTED_LENGTH}, got ${scanned.length}. Scan again.`, "error");
+        showStatus(
+          `Invalid roll number length.\nExpected ${EXPECTED_LENGTH} characters after cleaning, but got ${scanned.length}.\nPlease scan again.`,
+          "error"
+        );
+
+        showConfirmBox(
+          `<b>Rejected scan</b><br>
+           Cleaned scanned value: <b>${scanned}</b><br>
+           Expected length: <b>${EXPECTED_LENGTH}</b>`
+        );
+
         setTimeout(() => scanLock = false, 1200);
         return;
       }
 
       const now = Date.now();
-
       if (pendingTime && (now - pendingTime > CONFIRM_TIMEOUT_MS)) {
         resetPendingScan();
       }
 
-      // First scan
       if (!pendingBarcode) {
         pendingBarcode = scanned;
         pendingTime = now;
-        showStatus(`First scan accepted: ${scanned}\nScan the same card again to confirm.`, "warning");
+
+        showStatus(
+          `First scan accepted: ${scanned}\nPlease scan the same card once again to confirm.`,
+          "warning"
+        );
+
+        showConfirmBox(
+          `<b>Waiting for confirmation scan</b><br>
+           First cleaned value: <b>${pendingBarcode}</b><br>
+           Scan the same card again within 15 seconds.`
+        );
+
         setTimeout(() => scanLock = false, 1000);
         return;
       }
 
-      // Second scan must match
       if (scanned !== pendingBarcode) {
         const firstValue = pendingBarcode;
         resetPendingScan();
-        showStatus(`Scan mismatch.\nFirst: ${firstValue}\nSecond: ${scanned}\nNothing saved. Rescan from beginning.`, "error");
+
+        showStatus(
+          `Scan mismatch.\nFirst scan: ${firstValue}\nSecond scan: ${scanned}\nNothing saved. Please rescan from the beginning.`,
+          "error"
+        );
+
+        showConfirmBox(
+          `<b>Scan mismatch</b><br>
+           First cleaned value: <b>${firstValue}</b><br>
+           Second cleaned value: <b>${scanned}</b><br>
+           No attendance saved.`
+        );
+
         setTimeout(() => scanLock = false, 1500);
         return;
       }
 
-      // Confirmed roll no
       const confirmedRoll = pendingBarcode;
       resetPendingScan();
 
@@ -385,15 +705,19 @@
       try {
         const result = await apiPost({
           action: "markAttendance",
+          token: authToken,
           sessionId: sessionId,
           rollNo: confirmedRoll
         });
 
         if (result.success) {
           presentCount++;
-          document.getElementById("presentCount").innerText = presentCount;
+          updatePresentCount();
           showStatus(`Present marked: ${result.rollNo} - ${result.studentName}`, "success");
           beepSuccess();
+        } else if (result.authError) {
+          showStatus(result.message, "error");
+          await logout();
         } else if (result.duplicate) {
           showStatus(result.message, "error");
           beepDuplicate();
@@ -406,27 +730,41 @@
         }
 
       } catch (err) {
-        showStatus("API error: " + err, "error");
+        showStatus("API error while marking attendance: " + err, "error");
       }
 
       setTimeout(() => scanLock = false, 1500);
     }
 
+    // ------------------------------
+    // Finish session
+    // ------------------------------
     async function finishSession() {
+      if (!authToken) {
+        showStatus("Please login first.", "error");
+        return;
+      }
+
       if (!sessionId) {
         showStatus("No active session to finish.", "error");
         return;
       }
 
-      showStatus("Generating absentees...", "info");
+      showStatus("Generating absentee list...", "info");
 
       try {
         const result = await apiPost({
           action: "finishSession",
+          token: authToken,
           sessionId: sessionId
         });
 
         if (!result.success) {
+          if (result.authError) {
+            showStatus(result.message, "error");
+            await logout();
+            return;
+          }
           showStatus(result.message || "Failed to finish session", "error");
           return;
         }
@@ -435,44 +773,52 @@
         const summaryText = document.getElementById("summaryText");
         const absentList = document.getElementById("absentList");
 
-        summaryCard.style.display = "block";
-       summaryText.innerHTML = `
-  <div><b>Class:</b> ${result.session.branch} - ${result.session.year} - ${result.session.section}</div>
-  <div><b>Program Name:</b> ${result.session.programName}</div>
-  <div><b>Program Date:</b> ${result.session.programDate}</div>
-  <div><b>Resource Person:</b> ${result.session.resourcePerson}</div>
-  <div style="margin-top:8px;">
-    <b>Total Students:</b> ${result.totalStudents} |
-    <b>Present:</b> ${result.presentCount} |
-    <b>Absent:</b> ${result.absentCount}
-  </div>
-`;
+        summaryCard.classList.remove("hidden");
+
+        summaryText.innerHTML = `
+          <div><b>Class:</b> ${result.session.branch} - ${result.session.year} - ${result.session.section}</div>
+          <div><b>Program Name:</b> ${result.session.programName}</div>
+          <div><b>Program Date:</b> ${result.session.programDate}</div>
+          <div><b>Resource Person:</b> ${result.session.resourcePerson}</div>
+          <div><b>Created By:</b> ${result.session.createdBy}</div>
+          <div style="margin-top:10px;">
+            <b>Total Students:</b> ${result.totalStudents} |
+            <b>Present:</b> ${result.presentCount} |
+            <b>Absent:</b> ${result.absentCount}
+          </div>
+        `;
 
         if (result.absentees && result.absentees.length > 0) {
           absentList.innerHTML = result.absentees
-            .map(st => `<div>${st.rollNo} - ${st.name}</div>`)
+            .map(st => `<div class="absent-item">${st.rollNo} - ${st.name}</div>`)
             .join("");
         } else {
-          absentList.innerHTML = "<div>None. Full attendance.</div>";
+          absentList.innerHTML = `<div>No absentees. Full attendance.</div>`;
         }
 
         showStatus("Attendance finished. Absentee list generated.", "success");
 
       } catch (err) {
-        showStatus("API error: " + err, "error");
+        showStatus("API error while finishing session: " + err, "error");
       }
     }
 
+    // ------------------------------
+    // Audio alerts
+    // ------------------------------
     function beepSuccess() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
+
         osc.connect(gain);
         gain.connect(audioCtx.destination);
+
         osc.type = "sine";
         osc.frequency.value = 880;
         gain.gain.value = 0.1;
+
         osc.start();
         setTimeout(() => osc.stop(), 150);
       } catch (e) {}
@@ -483,15 +829,29 @@
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
+
         osc.connect(gain);
         gain.connect(audioCtx.destination);
+
         osc.type = "square";
         osc.frequency.value = 300;
         gain.gain.value = 0.08;
+
         osc.start();
         setTimeout(() => osc.stop(), 250);
       } catch (e) {}
     }
+
+    // ------------------------------
+    // On page load
+    // ------------------------------
+    window.addEventListener("load", () => {
+      if (authToken && loggedInUser) {
+        showAppUI();
+      } else {
+        showLoginUI();
+      }
+    });
   </script>
 </body>
 </html>
